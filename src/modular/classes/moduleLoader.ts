@@ -7,7 +7,7 @@ export class ModuleLoader {
         this.modules.push(registration)
     }
 
-    doThings() {
+    bootstrap() {
         let loadables = this.getLoadlables()
         while (loadables.length) {
             loadables.forEach(loadable => this.load(loadable))
@@ -25,7 +25,7 @@ export class ModuleLoader {
     }
 
     resolveDependency(dependency: Function) {
-        return this.modules.find(module => module.registrableConstructor == dependency)
+        return this.modules.find(module => module.registrableConstructor == dependency)!.instance
     }
 
     getLoadlables() {

@@ -1,17 +1,16 @@
 {
-    "compilerOptions": {
-      "baseUrl": ".", 
-      "paths": {
-        "src/*": ["./src/*"],
-        "@modular/*": ["./src/modular/*"]
-      },
-      "target": "ES6",
-      "module": "CommonJS",
-      "outDir": "./out",
-      "rootDir": "./src",
-      "strict": true,
-      "experimentalDecorators": true,
-      "emitDecoratorMetadata": true
-
-    }
+  "compilerOptions": {
+    "baseUrl": ".", 
+    "paths": {
+      "src/*": ["./src/*"],
+      "@modular/*": ["./src/modular/*"]
+    },
+    "target": "ES6",
+    "module": "CommonJS",
+    "outDir": "./out",
+    "rootDir": "./src",
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   }
+}

@@ -1,8 +1,9 @@
 import Modular from "@modular/classes/modular";
 
-export function Action(name: string) {
+export function Tick(frequency: number, maxAlive: number = 1) {
     return function (target: any, propertyKey: string) {
         const modular = Modular.getInstance()
-        modular.registerAction(name, target.constructor, propertyKey)
+        modular.registerTickable(frequency, maxAlive, target.constructor, propertyKey)
     };
   }
+
