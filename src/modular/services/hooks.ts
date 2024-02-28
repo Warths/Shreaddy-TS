@@ -10,7 +10,7 @@ export class Hooks {
         this.modular.doAction(name, args)
     }
 
-    filter<T>(name: string, value: any) {
+    filter<T>(name: string, value: any): T {
         return this.modular.applyFilters<T>(name, value)
     }
 

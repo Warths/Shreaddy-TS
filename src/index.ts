@@ -1,8 +1,8 @@
 import { Modular } from "@modular/core"
-import { HelloModule } from "./modules/HelloModule"
+import { AppModule } from "./modules/AppModule"
 import { LogThemeModule } from "./modules/LogThemeModule"
 
 Modular.run([
-    HelloModule,
+    AppModule,
     LogThemeModule
 ])

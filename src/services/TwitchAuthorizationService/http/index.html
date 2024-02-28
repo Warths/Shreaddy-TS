@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorization Success</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="success-message">
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg>
+            <h1>Authorization Successful</h1>
+            <p>You can now safely close this page.</p>
+        </div>
+    </div>
+    <script>
+        function getHashParams() {
+            const hash = window.location.hash.substring(1);
+            const hashParams = new URLSearchParams(hash);
+            const paramsObj = {};
+            hashParams.forEach((value, key) => {
+                paramsObj[key] = value;
+            });
+
+            return paramsObj;
+        }
+
+        // Example usage
+        const hashParamsObject = getHashParams();
+        let body = {
+            token: hashParamsObject.access_token,
+            scopes: hashParamsObject.scope.split(" "),
+            state: hashParamsObject.state,
+            token: hashParamsObject.access_token,
+        }
+
+        console.log(body)
+
+        fetch('http://localhost:4987/twitch/oauth2', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body)
+        })
+    </script>
+</body>
+</html> 

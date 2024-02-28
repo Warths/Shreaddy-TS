@@ -24,7 +24,7 @@ export class LogService {
 
     @Action("log_write")
     log_write(text: string) {
-        this.storage.appendFile('log/' + this.hooks.filter<string>('log_file_name', ''), text)
+        this.storage.appendFile('log/' + this.hooks.filter<string>('log_file_name', 'log.txt'), text)
     }
 
     @Action("log_info")
