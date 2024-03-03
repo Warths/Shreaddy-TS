@@ -1,6 +1,6 @@
 import { Module } from "@modular/core";
 import { Request, Response } from "express";
-import { Observable, Subject, combineLatest, distinct, distinctUntilChanged, filter, map, switchMap, tap } from "rxjs";
+import { BehaviorSubject, Observable, ReplaySubject, Subject, combineLatest, delay, distinct, distinctUntilChanged, filter, map, switchMap, take, tap } from "rxjs";
 import { TWITCH_CLIENT_ID } from "src/consts";
 import { Hooks } from "src/modular/hooks";
 import { ConfigService } from "src/modular/services/configService";
@@ -8,26 +8,9 @@ import { ConfigService } from "src/modular/services/configService";
 import { HttpServerService } from "src/modular/services/httpServerService";
 import { LogService } from "src/modular/services/logService";
 import { Tools } from "src/modular/services/tools";
+import { TwitchAuthorization, TwitchAuthorizationRegister, TwitchAuthorizationRequest } from "./types/twitchAuthorization.type";
+import { inherits } from "util";
 
-type TwitchAuthorization = {
-    login: string
-    user_id: string
-    token: string
-    client_id: string
-    scopes: string[]
-    expires: number
-}
-
-type TwitchAuthorizationRegister = {
-    identifier: string
-    authorization: TwitchAuthorization
-    lastValidate: number
-}
-
-type TwitchAuthorizationRequest = {
-    state: string,
-    identifier: string
-}
 
 
 @Module()
@@ -41,7 +24,6 @@ export class TwitchAuthorizationService  {
         private server: HttpServerService,
         private config: ConfigService,
         private tools: Tools,
-        private log: LogService,
         private hooks: Hooks
     ) {}
 
@@ -50,24 +32,22 @@ export class TwitchAuthorizationService  {
         this.server.get("/twitch/oauth2", (req, res) => res.sendFile(__dirname + "/http/index.html"))
         this.server.post("/twitch/oauth2", (req, res) => this.authorizationCallback(req, res))
 
-        this.getAuthorization("bot").subscribe(
-            (data: TwitchAuthorization) => console.log(data)
-        )
-
-        this.getAuthorization("bot").subscribe(
-            (data: TwitchAuthorization) => console.log(data)
-        )
-
         //this.server.openInBrowser("https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=vvsq7d0c8cn03cm11lpshicpkxpxgp&redirect_uri=http://localhost:4987/twitch/oauth2&scope=channel%3Amanage%3Apolls+channel%3Aread%3Apolls&force_verify=true")
+    }
+
+    initAuthorization(identifier: string): Observable<TwitchAuthorization> {
+        return this.getAuthorization(identifier).pipe(take(1))
     }
 
     getAuthorization(identifier: string): Observable<TwitchAuthorization> {
         let scopes: string[] = this.hooks.filter(identifier + ":twitch_scopes", [])
+ 
 
         if (Object.keys(this.twitchAuthorizationsRegister).includes(identifier)) {
             return this.twitchAuthorizationsRegister[identifier]
         }
-        let subject = new Subject<TwitchAuthorization>()
+
+        let subject = new ReplaySubject<TwitchAuthorization>()
         this.twitchAuthorizationsRegister[identifier] = subject
 
         combineLatest(
@@ -79,7 +59,7 @@ export class TwitchAuthorizationService  {
             map(([authorizations, clientId]) => {
                 let foundAuthorization: TwitchAuthorization | undefined
                 for (let authorization of authorizations ) {
-                    if (authorization.authorization.client_id == clientId && identifier == authorization.identifier && scopes.every((scope) => authorization.authorization.scopes.includes(scope))) {
+                    if (authorization.authorization.client_id == clientId && identifier == authorization.identifier && scopes.every((scope) => authorization.authorization.scopes && authorization.authorization.scopes.includes(scope))) {
                         foundAuthorization = authorization.authorization
                     }
                 }
@@ -93,7 +73,9 @@ export class TwitchAuthorizationService  {
             }),
             filter(e => e !== undefined),
             map(e => e as TwitchAuthorization),
-            distinctUntilChanged((a, b) => a.token == b.token)
+            distinctUntilChanged((a, b) => {
+                return a.token == b.token
+            })
         ).subscribe((e) => {subject.next(e)})
         return subject
     } 
@@ -118,6 +100,7 @@ export class TwitchAuthorizationService  {
         const body: {token: string, scopes: string[], state: string} = req.body
 
         let result = await this.validate(body.token)
+
         let authorizationRequest = this.twitchAuthorizationRequests.find(request => {
             return request.state == body.state
         })

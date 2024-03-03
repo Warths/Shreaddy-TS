@@ -29,8 +29,6 @@ export class ConfigService {
             map((config: any) => {
                 if (config.hasOwnProperty(key)) {
                     return config[key]
-                } else {
-                    console.log("no")
                 }
                 this.set(key, defaultValue)
                 return defaultValue

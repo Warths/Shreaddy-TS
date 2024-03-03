@@ -23,8 +23,9 @@ export default class Modular {
     }
 
     static run(loadables: Function[]) {
-        this.bootstrap()
-        Modular.scheduleTickables()
+        this.bootstrap().then(
+            () => Modular.scheduleTickables()
+        )
     }
 
     private static async bootstrap() {
@@ -33,7 +34,7 @@ export default class Modular {
         modular.loadModules()
 
         await modular.runHook(implementsOnInit, (m: OnInit) => m.onInit())
-        await modular.runHook(implementsAfterInit, (m: AfterInit) => m.afterInit())
+        await modular.runHook(implementsAfterInit, (m: AfterInit) => m.afterInit()).then
 
     }
 
@@ -52,6 +53,7 @@ export default class Modular {
                 }
             }
         }
+        
         return Promise.all(toResolve)
     }
 
