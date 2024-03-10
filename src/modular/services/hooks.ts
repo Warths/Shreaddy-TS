@@ -6,12 +6,19 @@ export class Hooks {
 
     constructor() {}
 
-    do(name: string, args: any[] = []) {
-        this.modular.doAction(name, args)
+    do(name: string | string[], args: any[] = []) {
+        this.modular.doAction(this.sanitize(name), args)
     }
 
-    filter<T>(name: string, value: any): T {
-        return this.modular.applyFilters<T>(name, value)
+    filter<T>(name: string | string[], value: any): T {
+        return this.modular.applyFilters<T>(this.sanitize(name), value)
+    }
+
+    private sanitize(name: string | string[]) {
+        if (Array.isArray(name)) {
+            name = name.join(":")
+        }
+        return name
     }
 
 }

@@ -1,11 +1,9 @@
 import { Module } from "@modular/core";
-import { LogService } from "src/modular/services/logService";
-import { TwitchAuthorizationService } from "src/services/TwitchAuthorizationService/TwitchAuthorizationService";
 import { TwitchChatModule } from "./TwitchChatModule/TwitchChatModule";
+import { ChatCommandModule } from "src/modular/modules/ChatCommandModule/ChatCommandModule";
 
 @Module([
-    TwitchChatModule
+    TwitchChatModule,
+    ChatCommandModule
 ])
-export class AppModule {
-    constructor(private log: LogService, private twitch: TwitchAuthorizationService) {}
-}
+export class AppModule {}

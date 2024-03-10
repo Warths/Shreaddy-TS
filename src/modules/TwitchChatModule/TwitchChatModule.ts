@@ -1,17 +1,16 @@
 import { Module } from "@modular/core";
 import { combineLatest, filter, map, take, tap} from "rxjs";
 import { Tick } from "src/modular/classes/hooks/tick";
-import { Action, AfterInit, Filter, Hooks, OnInit } from "src/modular/hooks";
+import { AfterInit, Filter, Hooks, OnInit } from "src/modular/hooks";
 import { LogService } from "src/modular/services/logService";
 import { TwitchAuthorizationService } from "src/services/TwitchAuthorizationService/TwitchAuthorizationService";
 import { TwitchAuthorization } from "src/services/TwitchAuthorizationService/types/twitchAuthorization.type";
 
 import tmi from "tmi.js"
 import { MessageQueue, QueuedMessage } from "./TwitchChatModule.types";
-import { ChatModule } from "src/modular/services/chatModule/chatService";
 import { ConfigService } from "src/modular/services/configService";
-import { ChatMessage } from "src/modular/services/chatModule/chatModule.types";
 import { TwitchApiService } from "../twitchApiService";
+import { ChatService } from "src/modular/services/chatService/chatService";
 
 
 
@@ -29,7 +28,7 @@ export class TwitchChatModule implements OnInit, AfterInit {
         private auth: TwitchAuthorizationService,
         private hooks: Hooks,
         private log: LogService,
-        private chat: ChatModule,
+        private chat: ChatService,
         private config: ConfigService,
         private api: TwitchApiService
     ) {}
@@ -46,7 +45,6 @@ export class TwitchChatModule implements OnInit, AfterInit {
                 }
             }),
             filter((channel) => !!channel),
-            tap(console.log),
             take(1)
         )
 
@@ -55,6 +53,9 @@ export class TwitchChatModule implements OnInit, AfterInit {
 
     async afterInit() {
         this.tmi = new tmi.Client({
+            options: {
+                debug: true
+            },
             identity: {
                 username: this.authorization.login, 
                 password: "oauth:"+this.authorization.token
@@ -96,9 +97,7 @@ export class TwitchChatModule implements OnInit, AfterInit {
         while (this.whispQueue.length) {
             const message = <QueuedMessage> this.whispQueue.pop()
             const api = this.api.createContext(this.authorization)
-            console.log(message.channel)
-            console.log(message.message)
-            api.whisper(message.channel, message.message).subscribe(console.log)
+            api.whisper(message.channel, message.message).subscribe()
         }
     }
 
@@ -108,12 +107,12 @@ export class TwitchChatModule implements OnInit, AfterInit {
 
         if (self) {
             return
-        }
+        } 
 
-        let chatMessage: ChatMessage
         if (userstate['message-type'] == "chat") {
-            console.log(userstate)
-            chatMessage = this.chat.createMessage({
+            let chatMessage = this.chat.createMessage({
+                userName: userstate['username'],
+                userId: userstate['user-id'],
                 content: message,
                 tags: userstate,
                 channel: channel,
@@ -127,11 +126,11 @@ export class TwitchChatModule implements OnInit, AfterInit {
                 globalReply: this.sayMessageHandlerFactory(channel)
             })
             this.chat.onPublicMessage(chatMessage)
-            chatMessage.whisp("hey")
+            
         }
 
         if (userstate['message-type'] == "whisper") {
-            chatMessage = this.chat.createMessage({
+            let chatMessage = this.chat.createMessage({
                 content: message,
                 tags: userstate,
                 channel: channel,
@@ -139,24 +138,26 @@ export class TwitchChatModule implements OnInit, AfterInit {
                 type: "private",
                 capabilities: userstate.badges ? Object.keys(userstate.badges) : [],
                 self: self,
-                say: this.whispToMessageHandlerFactory(channel),
-                reply: this.whispToMessageHandlerFactory(channel),
-                whisp: this.whispToMessageHandlerFactory(channel),
+                say: this.whispToMessageHandlerFactory(userstate['user-id']),
+                reply: this.whispToMessageHandlerFactory(userstate['user-id']),
+                whisp: this.whispToMessageHandlerFactory(userstate['user-id']),
                 globalReply: this.sayMessageHandlerFactory(channel)
             })
+
             this.chat.onPrivateMessage(chatMessage)
+            
         }
 
 
-        if (!self) {
-
-        }
     }
 
     @Filter("twitch:channels")
-    twitchChannels(scopes: string[]): string[] {
-        scopes.push("warths")
-        return scopes
+    twitchChannels(channels: string[]): string[] {
+        const channel = this.config.get("TWITCH_CHANNEL", null)
+        if (channel) {
+            channels.push(channel)
+        }
+        return channels
     }
 
     sayMessageHandlerFactory(channel: string) {
@@ -178,9 +179,6 @@ export class TwitchChatModule implements OnInit, AfterInit {
     }
 
 
-
-    
-
     @Filter("bot:twitch_scopes")
     botTwitchScopes(scopes: string[]): string[] {
         return [
@@ -190,10 +188,8 @@ export class TwitchChatModule implements OnInit, AfterInit {
             "whispers:read", 
             "whispers:edit", 
             "channel_editor",
-            "user:manage:whispers",
-            
+            "user:manage:whispers"
         ]
-
     }
 
 

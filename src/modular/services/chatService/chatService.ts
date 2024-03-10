@@ -1,10 +1,10 @@
 import { Module } from "@modular/core";
 import { Filter, Hooks } from "../../hooks";
-import { ChatMessage } from "./chatModule.types";
+import { ChatMessage } from "./chatService.types";
 
 
 @Module()
-export class ChatModule {
+export class ChatService {
 
     voidMessageHandler = (message:string) => {}
 
@@ -13,6 +13,8 @@ export class ChatModule {
     @Filter("createMessage")
     createMessage(payload: Partial<ChatMessage>): ChatMessage {
         return {
+           userName: payload.userName ?? null,
+           userId: payload.userId ?? null,
            content: payload.content ?? null,
            tags: payload.tags ?? {},
            channel: payload.channel ?? null,
@@ -31,7 +33,6 @@ export class ChatModule {
         if (this.hooks.filter("should-handle-message", true)) {
             this.hooks.do("public-message", [chatMessage])
             this.hooks.do("message", [chatMessage])
-            console.log(chatMessage)
         }
     }
 
@@ -40,7 +41,6 @@ export class ChatModule {
             this.hooks.do("private-message", [chatMessage])
             this.hooks.do("message", [chatMessage])
         }
-        console.log(chatMessage)
     }
 
 }    

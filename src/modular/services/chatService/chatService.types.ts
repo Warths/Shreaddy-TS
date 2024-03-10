@@ -1,4 +1,6 @@
 export type ChatMessage = {
+    userName: string | null
+    userId: string | null
     content: string | null
     tags: {[key:string]: any}
     channel: string | null
