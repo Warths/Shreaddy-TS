@@ -1,5 +1,5 @@
 import { ModuleLoader, ModuleLoaderRegistration } from "src/modular/classes/moduleLoader"
-import { AfterInit, BeforeUnload, OnInit, OnUnload, implementsAfterInit,  implementsBeforeUnload,  implementsOnInit, implementsOnUnload } from "./hooks/lifecycle"
+import { AfterInit, BeforeInit, BeforeUnload, OnInit, OnUnload, implementsAfterInit,  implementsBeforeInit,  implementsBeforeUnload,  implementsOnInit, implementsOnUnload } from "./hooks/lifecycle"
 import { Observable, lastValueFrom } from "rxjs"
 import { FunctionConfig, FunctionRegister } from "./functionRegister"
 import { Tickable, TickableRegister } from "./tickableRegister"
@@ -33,8 +33,9 @@ export default class Modular {
         Modular.setupExitSignal()
         modular.loadModules()
 
+        await modular.runHook(implementsBeforeInit, (m: BeforeInit) => m.beforeInit())
         await modular.runHook(implementsOnInit, (m: OnInit) => m.onInit())
-        await modular.runHook(implementsAfterInit, (m: AfterInit) => m.afterInit()).then
+        await modular.runHook(implementsAfterInit, (m: AfterInit) => m.afterInit())
 
     }
 

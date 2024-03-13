@@ -1,6 +1,14 @@
 import { Observable } from "rxjs";
 
 
+export function implementsBeforeInit(module: object): module is BeforeInit {
+    return (<BeforeInit>module).beforeInit !== undefined;
+}
+export interface BeforeInit {
+    beforeInit(): Observable<any> | Promise<any> | void;
+}
+
+
 export function implementsOnInit(module: object): module is OnInit {
     return (<OnInit>module).onInit !== undefined;
 }
