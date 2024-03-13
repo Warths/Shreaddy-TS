@@ -1,7 +1,6 @@
 import { Injectable } from "@modular/core";
 import { Action, Hooks } from "../hooks";
 import { StorageService } from "./storageService";
-import { BehaviorSubject, interval } from "rxjs";
 
 @Injectable()
 export class LogService {
@@ -19,50 +18,54 @@ export class LogService {
                 log_format = log_format.replace(toSearch, replaces[key])
             }
         }
+
         return log_format
     }
 
     @Action("log_write")
-    log_write(text: string) {
+    log_write(text: any) {
         this.storage.appendFile('log/' + this.hooks.filter<string>('log_file_name', 'log.txt'), text)
     }
 
     @Action("log_info")
-    info(text: string) {
+    info(text: any) {
         this.log(text, "info")
 
     }
 
     @Action("log_notice")
-    notice(text: string) {
+    notice(text: any) {
         this.log(text, "notice")
 
     }
 
     @Action("log_warning")
-    warning(text: string) {
+    warning(text: any) {
         this.log(text, "warning")
 
     }
 
     @Action("log_discrete")
-    discrete(text: string) {
+    discrete(text: any) {
         this.log(text, "discrete")
 
     }
 
     @Action("log_third_party")
-    thirdParty(text: string) {
+    thirdParty(text: any) {
         this.log(text, "third_party")
 
     }
 
     @Action("log_important")
-    important(text: string) {
+    important(text: any) {
         this.log(text, "important")
     }
 
-    log(text: string, type: string) {
+    log(text: any, type: string) {
+        if (text instanceof Object) {
+            text = JSON.stringify(text)
+        }
         let log_format = this.hooks.filter<string>("log_"+type+"_format", "{message}")
         this.out(this.format(log_format, {message: text}))
 
