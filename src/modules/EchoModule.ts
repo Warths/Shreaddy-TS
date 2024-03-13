@@ -34,8 +34,6 @@ export class EchoModule {
             this.onEchoInvalid(message)
         }
         
-        console.log(commandParser.value(args))
-
         message.globalReply(args)
         this.command.onSuccess(command.identifier)
 
