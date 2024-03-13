@@ -1,6 +1,6 @@
 import { Injectable } from "@modular/core";
 import { StorageService } from "./storageService";
-import { Observable, distinctUntilChanged, map, tap } from "rxjs";
+import { Observable, distinctUntilChanged, map, take, tap } from "rxjs";
 
 @Injectable()
 export class ConfigService {
@@ -47,6 +47,10 @@ export class ConfigService {
                 return previous == current
             })
         )
+    }
+
+    take$<T = any>(key: string, defaultValue: T): Observable<T> {
+        return this.get$(key, defaultValue).pipe(take(1))
     }
 
     set<T = any>(name: string, value: T): void {
