@@ -22,9 +22,11 @@
     "express": "^4.18.2",
     "module-alias": "^2.2.3",
     "opn": "^6.0.0",
+    "promised-sqlite3": "^2.1.0",
     "punycode": "^2.3.1",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1",
+    "sqlite3": "^5.1.7",
     "tmi.js": "github:tmijs/tmi.js#v1.9.0-pre.1",
     "tslib": "^2.6.2"
   },
