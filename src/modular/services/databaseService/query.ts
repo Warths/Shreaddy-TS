@@ -437,9 +437,9 @@ export class Query {
 
             if (Array.isArray(value)) {
                 prepared.values.push("?")
-                prepared.params.push(this.convertToString(value[0]))
+                prepared.params.push(Query.convertToString(value[0]))
             } else {
-                prepared.values.push(this.convertToString(value))
+                prepared.values.push(Query.convertToString(value))
             }
         }
 
@@ -447,7 +447,7 @@ export class Query {
 
     }
 
-    convertToString(toConvert: string | boolean | number) {
+    static convertToString(toConvert: string | boolean | number) {
         switch (typeof toConvert) {
             case "boolean":
                 return toConvert ? "1" : "0"
