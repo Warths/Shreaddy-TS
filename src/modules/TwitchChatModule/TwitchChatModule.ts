@@ -178,6 +178,10 @@ export class TwitchChatModule implements OnInit, AfterInit {
         }
     }
 
+    sendMessage(channel: string, message: string) {
+        this.queue.push({channel, message})
+    }
+
 
     @Filter("bot:twitch_scopes")
     botTwitchScopes(scopes: string[]): string[] {
