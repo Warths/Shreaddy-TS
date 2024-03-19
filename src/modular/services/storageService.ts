@@ -7,10 +7,6 @@ export class StorageService {
     fs = require('fs')
     path = require("path")
 
-    constructor() {
-        this.fs.mkdir("storage", () => {})
-    }
-
     observeFile(path: string, defaultValue = "", checkInterval = 100): Observable<string> {
         let subject = new BehaviorSubject<string>(defaultValue)
         interval(checkInterval).subscribe()
@@ -24,8 +20,8 @@ export class StorageService {
         )
     }
 
-    observeJson(path: string, defaultValue = {}, checkInterval = 100): Observable<Object> {
-        return this.observeFile(path, JSON.stringify(defaultValue)).pipe(
+    observeJson<T = any>(path: string, defaultValue: any = {}, checkInterval = 100): Observable<T> {
+        return this.observeFile(path, JSON.stringify(defaultValue), checkInterval).pipe(
             filter((str) => {
                 try{
                     JSON.parse(str)
@@ -49,7 +45,7 @@ export class StorageService {
             if (!this.fs.existsSync(pathDir)) {
                 this.fs.mkdirSync(pathDir)
             }
-            pathDir + "/"
+            pathDir += "/"
         }
 
         this.fs.writeFileSync(path, value)
@@ -58,6 +54,13 @@ export class StorageService {
 
     writeJson(path: string, value: any) {
         this.writeFile(path, JSON.stringify(value, undefined, 2))
+    }
+
+    readJson(path: string, defaultValue: Object = {}) {
+        if (!this.fs.existsSync(path)) {
+            this.writeJson(path, defaultValue)
+        }
+        return JSON.parse(this.fs.readFileSync(path, { encoding: 'utf8', flag: 'r' }))
     }
 
     readFile(path: string, defaultValue: string) {
