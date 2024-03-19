@@ -1,15 +1,27 @@
 import { Module } from "@modular/core";
-import { Action } from "src/modular/hooks";
+import { OnInit } from "src/modular/hooks";
 import { ChatCommandModule } from "src/modular/modules/ChatCommandModule/ChatCommandModule";
-import { CommandControl, CommandFlag, CommandParser, CommandRemain, Validators } from "src/modular/modules/ChatCommandModule/ChatCommandModule.classes";
-import { Command, ParsedCommand } from "src/modular/modules/ChatCommandModule/ChatCommandModule.types";
+import { CommandFlag, CommandParser, CommandRemain, Validators } from "src/modular/modules/ChatCommandModule/ChatCommandModule.classes";
+import { Command } from "src/modular/modules/ChatCommandModule/ChatCommandModule.types";
+import { Translatable } from "src/modular/modules/I18nService/I18n.types";
+import { I18nService } from "src/modular/modules/I18nService/I18nService";
 import { ChatMessage } from "src/modular/services/chatService/chatService.types";
 
 @Module()
-export class EchoModule {
+export class EchoModule implements Translatable, OnInit {
+
+    domain = "echo_module"
+    translations = {
+        command_usage: "Usage : !echo <message to echo>",
+        command_cooldown: "Command is on cooldown"
+    }
 
 
-    constructor(private command: ChatCommandModule) {
+    constructor(private command: ChatCommandModule, private lang: I18nService) {}
+
+    onInit() {
+        this.lang.register(this)
+
         this.command.fromConfig({
             identifier: "echo",
             triggers: ["echo"],
@@ -40,7 +52,7 @@ export class EchoModule {
     }
 
     onEchoCooldown(trigger: string, message: ChatMessage) {
-        message.globalReply("Command is on cooldown")
+        message.globalReply(this.lang.get("command_cooldown", this.domain, 'fr'))
     }
 
     onEchoInvalid(message: ChatMessage) {
