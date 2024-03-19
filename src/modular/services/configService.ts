@@ -58,5 +58,12 @@ export class ConfigService {
         this.storage.writeJson(this.configPath, this.config)
     }
 
+    get loaded$() {
+        return this.config$.pipe(
+            map(_ => true),
+            take(1)
+        )
+    }
+
 
 }    
