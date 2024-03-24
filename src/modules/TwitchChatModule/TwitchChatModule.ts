@@ -9,7 +9,7 @@ import { TwitchAuthorization } from "src/services/TwitchAuthorizationService/typ
 import tmi from "tmi.js"
 import { MessageQueue, QueuedMessage } from "./TwitchChatModule.types";
 import { ConfigService } from "src/modular/services/configService";
-import { TwitchApiService } from "../twitchApiService";
+import { TwitchApiService } from "../../services/twitchApiService";
 import { ChatService } from "src/modular/services/chatService/chatService";
 
 
