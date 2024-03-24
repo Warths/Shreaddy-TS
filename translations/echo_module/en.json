@@ -1,4 +1,4 @@
 {
   "command_usage": "Usage : !echo <message to echo>",
-  "command_cooldown": "Command is on cooldown"
+  "command_cooldown": "Command is on cooldown !"
 }
